@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -5,11 +6,10 @@ import java.util.List;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        String operation="20+5*7/2+3+15";
-        List<Token> tokens = Tokenizer.TokenizeInput(operation);
-
-        TreeNode rootNode = Parser.parseIntoNodes(tokens);
-        System.out.println(rootNode);
-        System.out.println("Value is: "+Parser.EvaluateRoot(rootNode));
+        try{
+            InputData.getInput();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

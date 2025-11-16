@@ -10,8 +10,13 @@ public class Parser {
             "+",1,
             "-",1,
             "*",2,
-            "/",2
+            "/",2,
+            "^",2
     );
+    public static boolean isLeftAssociative(String op){
+       if(op.equals("^")) return false;
+       return true;
+    }
     private static int getPrec(String op){
         return precedence.getOrDefault(op,0);
     }
@@ -29,7 +34,7 @@ public class Parser {
                     if(topOperator==null) break;
                     int currentPrecedence=getPrec(currentOperator);
                     int topPrecedence=getPrec(topOperator);
-                    if(currentPrecedence<=topPrecedence){
+                    if((isLeftAssociative(topOperator)&&currentPrecedence<=topPrecedence)||(!isLeftAssociative(topOperator)&&currentPrecedence<topPrecedence)){
                         operatorStack.pop();
                         buildNodeFromTheTop(nodeStack,topOperator);
                     }
@@ -62,10 +67,21 @@ public class Parser {
         TreeNode builtNode = TreeNode.combinedNode(left,right,operator);
         nodeStack.push(builtNode);
     }
+    private static double powered(double l, double r){
+        while(r!=1){
+            l=l*l;
+            r--;
+        }
+        return l;
+    }
     public static double EvaluateRoot(TreeNode rootNode){
         if(rootNode.getValue()!=null) return rootNode.getValue();
         double r = EvaluateRoot(rootNode.getRight());
         double l = EvaluateRoot(rootNode.getLeft());
+        if(rootNode.getOperator().equals("^")&&r==0)
+            return 1;
+        if(rootNode.getOperator().equals("^")&&r<0)
+            return 1/powered(l,r);
         if(rootNode.getOperator().equals("/")){
             if(r==0){
                 throw new RuntimeException("Cannot divide with 0");
@@ -76,6 +92,7 @@ public class Parser {
             case "-" -> l - r;
             case "*" -> l * r;
             case "/" -> l / r;
+            case "^" -> powered(l,r);
             default -> throw new RuntimeException("Operator not identifiable: " + rootNode.getOperator());
         };
     }
